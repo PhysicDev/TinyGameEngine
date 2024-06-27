@@ -28,21 +28,22 @@ public final class Utilities {
 	
 	//chat gpt
 	public static BufferedImage cloneBufferedImage(BufferedImage original) {
-        // Create a new BufferedImage with the same properties as the original
-        BufferedImage clone = new BufferedImage(
-            original.getWidth(),
-            original.getHeight(),
-            original.getType()
-        );
-
-        // Create a Graphics2D object to draw the original image onto the new one
-        Graphics2D g2d = clone.createGraphics();
-        g2d.drawImage(original, 0, 0, null);
-        g2d.dispose(); // Clean up
-
-        return clone;
-    }
+	        // Create a new BufferedImage with the same properties as the original
+	        BufferedImage clone = new BufferedImage(
+	            original.getWidth(),
+	            original.getHeight(),
+	            original.getType()
+	        );
 	
+	        // Create a Graphics2D object to draw the original image onto the new one
+	        Graphics2D g2d = clone.createGraphics();
+	        g2d.drawImage(original, 0, 0, null);
+	        g2d.dispose(); // Clean up
+	
+	        return clone;
+	    }
+
+	//chat gpt
 	public static void addHighlight(JButton button) {
         Icon originalIcon = button.getIcon();
 
@@ -67,7 +68,7 @@ public final class Utilities {
             });
         }
     }
-
+    //chat gpt
     private static Image brightenImage(Image originalImage, float factor) {
         BufferedImage bufferedImage = new BufferedImage(
                 originalImage.getWidth(null),
