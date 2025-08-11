@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 
 import tge.Utilities;
 
-public class DualGridRenderer<E> implements GridRenderer<E> {
+public class DualGridRenderer<E> extends GridRenderer<E> {
 
 	private BufferedImage[] tileset;
 	
@@ -42,10 +42,17 @@ public class DualGridRenderer<E> implements GridRenderer<E> {
 
 	@Override
 	public void draw(Grid<E> grid, Graphics g) {//method naive pour l'instant
-		int pos=0;
 		int size=tileset.length;
-		for(int y=-1;y<grid.sizeY;y++) {
-			for(int x=-1;x<grid.sizeX;x++) {
+
+		int LX=(int)Math.max(-1,Math.floor((super.bound_lowX-grid.getPosX())/grid.getScale())-1);
+		int LY=(int)Math.max(-1,Math.floor((super.bound_lowY-grid.getPosY())/grid.getScale())-1);
+		
+
+		int HX=(int)Math.min(grid.sizeX,Math.ceil((super.bound_highX-grid.getPosX())/grid.getScale()));
+		int HY=(int)Math.min(grid.sizeY,Math.ceil((super.bound_highY-grid.getPosY())/grid.getScale()));
+		
+		for(int y=LY;y<HY;y++) {
+			for(int x=LX;x<HX;x++) {
 				
 				int id=(testFunction.test((x>=0&&y>=0)?grid.get(x,y):borderValue)?1:0)+
 					   (testFunction.test((x<grid.sizeX-1 && y>=0)?grid.get(x+1,y):borderValue)?2:0)+
@@ -53,10 +60,12 @@ public class DualGridRenderer<E> implements GridRenderer<E> {
 					   (testFunction.test((y<grid.sizeY-1&&x<grid.sizeX-1)?grid.get(x+1,y+1):borderValue)?8:0);
 				
 				id=id>=size?0:id;
-				g.drawImage(tileset[id], (int)((x+OffX)*grid.getScale()+grid.getPosX()),(int)((y+OffY)*grid.getScale()+grid.getPosY()+OffY),(int)grid.getScale(),(int)grid.getScale(),null);
-				pos++;
+				g.drawImage(tileset[id],
+						(int)((x+OffX)*grid.getScale()+grid.getPosX()),
+						(int)((y+OffY)*grid.getScale()+grid.getPosY()+OffY),
+						(int)((x+1+OffX)*grid.getScale()+grid.getPosX())	 -(int)((x+OffX)*grid.getScale()+grid.getPosX()),
+						(int)((y+1+OffY)*grid.getScale()+grid.getPosY()+OffY)-(int)((y+OffY)*grid.getScale()+grid.getPosY()+OffY),null);
 			}
-			pos++;
 		}
 	}
 

@@ -12,7 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-public abstract class Sim extends JPanel{
+public class Sim extends JPanel{
 	
 	public static final String GAME_SCREEN="game";
 	
@@ -34,8 +34,8 @@ public abstract class Sim extends JPanel{
 	public int FrameGraph() {return FrameLimiterGraphic;}
 	public int FrameLogic() {return FrameLimiterLogic;}
 	
-	protected static long Gframes=0;
-	protected static long Lframes=0;
+	protected long Gframes=0;
+	protected long Lframes=0;
 	
 	public boolean paused=false;
 	
@@ -60,18 +60,25 @@ public abstract class Sim extends JPanel{
 		gameloop.parent=this;
 		gameloop.start();
 		
-		while(true) {
-			long time=System.currentTimeMillis();
-			if(!paused)
-				GraphicLoop();
-			try {
-				long waitTime=(long) (1000d/(double)FrameLimiterGraphic-System.currentTimeMillis()+time);
-				if(waitTime>0)
-					Thread.sleep(waitTime);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		Runnable gl = () -> {
+			while(true) {
+				long time=System.currentTimeMillis();
+				if(!paused)
+					GraphicLoop();
+				try {
+					long waitTime=(long) (1000d/(double)FrameLimiterGraphic-System.currentTimeMillis()+time);
+					
+					if(waitTime>0)
+						Thread.sleep(waitTime);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
-		}
+        };
+        
+        Thread GraphicLoop=new Thread(gl);
+        GraphicLoop.start();
+		
 	}
 	
 	public JFrame setupFrame() {
@@ -108,14 +115,17 @@ public abstract class Sim extends JPanel{
 		 Sim parent;
 		 public void run() {
 			  while(true) {
-				long time=System.currentTimeMillis();
 				if(!parent.paused)
 					loop();
 				try {
-					long waitTime=(long) (1000d/(double)FrameLimiterLogic-System.currentTimeMillis()+time);
+					long time=System.nanoTime();
+					double delta=(time-timeNano)/1000000f;
+					long waitTime= (long)(1000d/(double)FrameLimiterLogic-delta);
+					//System.out.println(waitTime);
 					if(waitTime>0)
-						Thread.sleep(waitTime);
-				} catch (InterruptedException e) {
+						Thread.sleep((long)waitTime);;
+					timeNano=time+waitTime*1000000;
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			  }
@@ -134,8 +144,10 @@ public abstract class Sim extends JPanel{
 	public int GraphicLoop(){
 		Gframes++;
 		Point pos=mousePosition();
-		mouseX=pos.x;
-		mouseY=pos.y;
+		if(this.getBounds().contains(pos)) {
+			mouseX=pos.x;
+			mouseY=pos.y;
+		}
 		sim.repaint();
 		return 1;//success
 	}

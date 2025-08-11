@@ -2,10 +2,9 @@ package tge.tileset;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.HashMap;
 import java.util.function.Function;
 
-public class ColorRenderer<E> implements GridRenderer<E> {
+public class ColorRenderer<E> extends GridRenderer<E> {
 
 
 	public static final Color NULL_COLOR=Color.PINK;
@@ -13,9 +12,19 @@ public class ColorRenderer<E> implements GridRenderer<E> {
 	
 	@Override
 	public void draw(Grid<E> grid, Graphics g) {
-		int pos=0;
-		for(int y=0;y<grid.sizeY;y++) {
-			for(int x=0;x<grid.sizeX;x++) {
+
+		int LX=(int)Math.max(0,Math.floor((super.bound_lowX-grid.getPosX())/grid.getScale()));
+		int LY=(int)Math.max(0,Math.floor((super.bound_lowY-grid.getPosY())/grid.getScale()));
+		
+		int HX=(int)Math.min(grid.sizeX,Math.ceil((super.bound_highX-grid.getPosX())/grid.getScale()));
+		int HY=(int)Math.min(grid.sizeY,Math.ceil((super.bound_highY-grid.getPosY())/grid.getScale()));
+		
+		
+		int pos=LX+LY*grid.sizeX;
+		int offset=grid.sizeX-HX+LX;
+		
+		for(int y=LY;y<HY;y++) {
+			for(int x=LX;x<HX;x++) {
 				Color c=textureMapping.apply(grid.data.get(pos));
 				//System.out.println(grid.data.get(pos));
 				c=c==null?NULL_COLOR:c;
@@ -26,6 +35,7 @@ public class ColorRenderer<E> implements GridRenderer<E> {
 
 				pos++;
 			}
+			pos+=offset;
 		}
 	}
 	

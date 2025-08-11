@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 
 import tge.Utilities;
 
-public class SmartTileset<E> implements GridRenderer<E> {
+public class SmartTileset<E> extends GridRenderer<E> {
 
 	private ArrayList<BufferedImage[]> tilesets=new ArrayList<BufferedImage[]>();
 	
@@ -47,9 +47,17 @@ public class SmartTileset<E> implements GridRenderer<E> {
 
 	@Override
 	public void draw(Grid<E> grid, Graphics g) {//method naive pour l'instant
-		int pos=0;
-		for(int y=0;y<grid.sizeY;y++) {
-			for(int x=0;x<grid.sizeX;x++) {
+		int LX=(int)Math.max(0,Math.floor((super.bound_lowX-grid.getPosX())/grid.getScale()));
+		int LY=(int)Math.max(0,Math.floor((super.bound_lowY-grid.getPosY())/grid.getScale()));
+		
+
+		int HX=(int)Math.min(grid.sizeX,Math.ceil((super.bound_highX-grid.getPosX())/grid.getScale()));
+		int HY=(int)Math.min(grid.sizeY,Math.ceil((super.bound_highY-grid.getPosY())/grid.getScale()));
+		
+		
+		
+		for(int y=LY;y<HY;y++) {
+			for(int x=LX;x<HX;x++) {
 				int texID=testFunction.apply(grid.get(x,y));
 				if(texID!=0) {
 					int id=(testFunction.apply((y!=0)?grid.get(x,y-1):borderValue)!=0?1:0)+
@@ -62,9 +70,7 @@ public class SmartTileset<E> implements GridRenderer<E> {
 							,(int)((x+1)*grid.getScale()+grid.getPosX())-(int)(x*grid.getScale()+grid.getPosX())
 							,(int)((y+1)*grid.getScale()+grid.getPosY())-(int)(y*grid.getScale()+grid.getPosY()),null);
 				}
-				pos++;
 			}
-			pos++;
 		}
 	}
 

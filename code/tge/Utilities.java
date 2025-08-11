@@ -92,6 +92,35 @@ public final class Utilities {
 	    }
 	
 	public static BufferedImage[] loadTileset(String tilsetPath, int tileSizeX,int tileSizeY) throws IOException {
+	        return loadTileset(tilsetPath,tileSizeX,tileSizeY,-1);
+	  }
+	
+	
+	public static BufferedImage flipHorizontal(BufferedImage originalImage) {
+        // Vérifie si l'image d'origine est null
+        if (originalImage == null) {
+            throw new IllegalArgumentException("L'image d'origine ne peut pas être null");
+        }
+
+        // Crée une nouvelle image avec les mêmes dimensions que l'image d'origine
+        int width = originalImage.getWidth();
+        int height = originalImage.getHeight();
+        BufferedImage flippedImage = new BufferedImage(width, height, originalImage.getType());
+
+        // Obtient le contexte graphique de la nouvelle image
+        Graphics2D g = flippedImage.createGraphics();
+
+        // Dessine l'image d'origine sur la nouvelle image en la retournant horizontalement
+        g.drawImage(originalImage, 0, 0, width, height, width, 0, 0, height, null);
+
+        // Libère les ressources graphiques
+        g.dispose();
+
+        return flippedImage;
+    }
+	
+	
+	public static BufferedImage[] loadTileset(String tilsetPath, int tileSizeX,int tileSizeY,int frames) throws IOException {
         // Load the image from the file path
         BufferedImage image = ImageIO.read(new File(tilsetPath));
         
@@ -102,9 +131,13 @@ public final class Utilities {
         // Calculate number of tiles in each dimension
         int tilesX = imageWidth / tileSizeX;
         int tilesY = imageHeight / tileSizeY;
+        int size=tilesX*tilesY;
+        if(frames>=0)
+        	size=frames;
+        	
         
         // Create an array to store the tiles
-        BufferedImage[] tileset = new BufferedImage[tilesX * tilesY];
+        BufferedImage[] tileset = new BufferedImage[size];
         
         // Loop through the image and extract tiles
         int tileIndex = 0;
@@ -113,6 +146,8 @@ public final class Utilities {
                 // Extract the tile as a subimage
                 BufferedImage tile = image.getSubimage(x * tileSizeX, y * tileSizeY, tileSizeX, tileSizeY);
                 tileset[tileIndex++] = tile;
+                if(tileIndex==size)
+                	return tileset;
             }
         }
         return tileset;
@@ -175,4 +210,6 @@ public final class Utilities {
 
         return bufferedImage;
     }
+    
+    
 }
